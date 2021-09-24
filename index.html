@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Árvore</title>
+</head>
+<body>
+    <div class="container">
+        <div class="tools">
+            <div>
+                <label for="valor">Valor inteiro a inserir:</label>
+                <input type="text" id="valor">
+            </div>
+            <div><button onclick="onInsertClick()">Inserir</button></div>
+            <div><button onclick="onClearClick()">Limpar árvore</button></div>
+            <div class="vertical-line"></div>
+            <div><button onclick="onPreorderClick()" style="background-color: red">Pré-ordem</button></div>
+            <div><button onclick="onInorderClick()" style="background-color: green">Em ordem</button></div>
+            <div><button onclick="onPostorderClick()" style="background-color: blue">Pós-ordem</button></div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="buscaValor">Busca:</label>
+                <input type="text" id="buscaValor">
+            </div>
+            <div><button onclick="onSearchClick()">Buscar</button></div>
+            <div><button onclick="onClearSearchClick()">Limpar busca</button></div>
+        </div>
+        <div class="tree">
+            <canvas id="myCanvas"></canvas>
+        </div>
+    </div>
+    <script src="js/arvore.js"></script>
+    <script>
+        const valorTextField = document.getElementById("valor");
+        valorTextField.addEventListener('keydown', keyDownInsert);
+
+        const buscaTextField = document.getElementById("buscaValor");
+        buscaTextField.addEventListener('keydown', keyDownSearch);
+    </script>
+</body>
+</html>
