@@ -1,3 +1,6 @@
+let timeValue = 500;
+let animation = true;
+
 criarArvore = () => {
     const a = {
       raiz: null,
@@ -13,8 +16,14 @@ criarArvore = () => {
 destruirArvore = (arvore) => {
   arvore.raiz = null;
 }
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+arv = criarArvore();
   
-inserirSubArvore = (noRaiz, valor) => {
+inserirSubArvore = async (noRaiz, valor) => {
     if (noRaiz == null) {
       const no = {
         esq: null,
@@ -24,18 +33,23 @@ inserirSubArvore = (noRaiz, valor) => {
       
       return no;
     }
+
+    if (animation) {
+      desenhaArvore(arv, noRaiz.valor);
+      await timeout(timeValue);
+    }
     
     if (valor <= noRaiz.valor) {
-      noRaiz.esq = inserirSubArvore(noRaiz.esq, valor);
+      noRaiz.esq = await inserirSubArvore(noRaiz.esq, valor);
     } else {
-      noRaiz.dir = inserirSubArvore(noRaiz.dir, valor);
+      noRaiz.dir = await inserirSubArvore(noRaiz.dir, valor);
     }
     
     return noRaiz;
 }
   
-inserirArvore = (arvore, valor) => {
-    arvore.raiz = inserirSubArvore(arvore.raiz, valor);
+inserirArvore = async (arvore, valor) => {
+    arvore.raiz = await inserirSubArvore(arvore.raiz, valor);
 }
 
 alturaSubArvore = (noRaiz, altura) => {
@@ -125,95 +139,119 @@ desenhaArvore = (arvore, encontrado) => {
     desenhaSubArvore(arvore.raiz, 0, 0, c.width, ctx, encontrado);
 }
 
-preOrdemSubArvore = (noRaiz) => {
+preOrdemSubArvore = async (noRaiz) => {
   if (noRaiz == null) {
+    desenhaArvore(arv);
     return [];
   }
 
   const result = [];
 
+  console.log(noRaiz.valor);
+
+  if (animation) {
+    desenhaArvore(arv, noRaiz.valor);
+    await timeout(timeValue);
+  }
+
   result.push(noRaiz.valor);
-  result.push(...preOrdemSubArvore(noRaiz.esq));
-  result.push(...preOrdemSubArvore(noRaiz.dir));
+  result.push(...await preOrdemSubArvore(noRaiz.esq));
+  result.push(...await preOrdemSubArvore(noRaiz.dir));
 
   return result;
 }
 
-emOrdemSubArvore = (noRaiz) => {
+emOrdemSubArvore = async (noRaiz) => {
   if (noRaiz == null) {
+    desenhaArvore(arv);
     return [];
   }
 
   const result = [];
   
-  result.push(...emOrdemSubArvore(noRaiz.esq));
+  result.push(...await emOrdemSubArvore(noRaiz.esq));
+
+  if (animation) {
+    desenhaArvore(arv, noRaiz.valor);
+    await timeout(timeValue);
+  }
+
   result.push(noRaiz.valor);
-  result.push(...emOrdemSubArvore(noRaiz.dir));
+
+  result.push(...await emOrdemSubArvore(noRaiz.dir));
 
   return result;
 }
 
-posOrdemSubArvore = (noRaiz) => {
+posOrdemSubArvore = async (noRaiz) => {
   if (noRaiz == null) {
+    desenhaArvore(arv);
     return [];
   }
 
   const result = [];
 
-  result.push(...posOrdemSubArvore(noRaiz.esq));
-  result.push(...posOrdemSubArvore(noRaiz.dir));
+  result.push(...await posOrdemSubArvore(noRaiz.esq));
+  result.push(...await posOrdemSubArvore(noRaiz.dir));
+
+  if (animation) {
+    desenhaArvore(arv, noRaiz.valor);
+    await timeout(timeValue);
+  }
+
   result.push(noRaiz.valor);
 
   return result;
 }
 
-preOrdem = (arvore) => {
-  const result = preOrdemSubArvore(arvore.raiz);
+preOrdem = async (arvore) => {
+  const result = await preOrdemSubArvore(arvore.raiz);
   return result;
 }
 
-emOrdem = (arvore) => {
-  const result = emOrdemSubArvore(arvore.raiz);
+emOrdem = async (arvore) => {
+  const result = await emOrdemSubArvore(arvore.raiz);
   return result;
 }
 
-posOrdem = (arvore) => {
-  const result = posOrdemSubArvore(arvore.raiz);
+posOrdem = async (arvore) => {
+  const result = await posOrdemSubArvore(arvore.raiz);
   return result;
 }
 
-buscaSubArvore = (noRaiz, valor) => {
+buscaSubArvore = async (noRaiz, valor) => {
   if (noRaiz == null) {
+    desenhaArvore(arv);
     return null;
+  }
+
+  if (animation) {
+    desenhaArvore(arv, noRaiz.valor);
+    await timeout(timeValue);
   }
 
   if (noRaiz.valor == valor) {
     return noRaiz.valor;
   }
 
-  const resultEsq = buscaSubArvore(noRaiz.esq, valor);
-  const resultDir = buscaSubArvore(noRaiz.dir, valor);
-
-  if (resultEsq != null) {
-    return resultEsq;
-  }
-
-  if (resultDir != null) {
-    return resultDir;
+  if (valor < noRaiz.valor) {
+    return await buscaSubArvore(noRaiz.esq, valor);
+  } else {
+    return await buscaSubArvore(noRaiz.dir, valor);
   }
 }
 
-buscaArvore = (arvore, valor) => {
-  return buscaSubArvore(arvore.raiz, valor);
+buscaArvore = async (arvore, valor) => {
+  return await buscaSubArvore(arvore.raiz, valor);
 }
 
-arvoreTeste = () => {
-    inserirArvore(arv, 55);
-    inserirArvore(arv, 12);
-    inserirArvore(arv, 80);
-    inserirArvore(arv, 64);
-    inserirArvore(arv, 56);
-    inserirArvore(arv, 89);
+arvoreTeste = async () => {
+    await inserirArvore(arv, 55);
+    await inserirArvore(arv, 12);
+    await inserirArvore(arv, 80);
+    await inserirArvore(arv, 64);
+    await inserirArvore(arv, 56);
+    await inserirArvore(arv, 89);
     
     // console.log(arv);
     // console.log(alturaArvore(arv));
@@ -222,17 +260,14 @@ arvoreTeste = () => {
     desenhaArvore(arv);
 }
 
-
-arv = criarArvore();
-
 arvoreTeste();
 
-function onInsertClick () {
+async function onInsertClick () {
   try {
       const value = document.getElementById("valor").value;
       const result = parseInt(value);
       
-      inserirArvore(arv, result);
+      await inserirArvore(arv, result);
       desenhaArvore(arv);
   } catch (e) {
     console.log(e);
@@ -257,31 +292,35 @@ function keyDownSearch (event) {
   }
 }
 
-function onPreorderClick() {
-  const result = preOrdem(arv);
+async function onPreorderClick() {
+  const result = await preOrdem(arv);
+  desenhaArvore(arv);
   alert(result.join(', '));
 }
 
-function onInorderClick() {
-  const result = emOrdem(arv);
+async function onInorderClick() {
+  const result = await emOrdem(arv);
+  desenhaArvore(arv);
   alert(result.join(', '));
 }
 
-function onPostorderClick() {
-  const result = posOrdem(arv);
+async function onPostorderClick() {
+  const result = await posOrdem(arv);
+  desenhaArvore(arv);
   alert(result.join(', '));
 }
 
-function onSearchClick() {
+async function onSearchClick() {
   try {
       const value = document.getElementById("buscaValor").value;
       const result = parseInt(value);
       
-      const encontrado = buscaArvore(arv, result);
+      const encontrado = await buscaArvore(arv, result);
 
       if (encontrado != null) {
         desenhaArvore(arv, encontrado);
       } else {
+        desenhaArvore(arv);
         alert('Valor não encontrado!');
       }
   } catch (e) {
@@ -292,4 +331,12 @@ function onSearchClick() {
 
 function onClearSearchClick() {
   desenhaArvore(arv);
+}
+
+function changeCheckAnimation(event) {
+  if (event.currentTarget.checked) {
+    animation = true;
+  } else {
+    animation = false;
+  }
 }

@@ -27,6 +27,11 @@
             </div>
             <div><button onclick="onSearchClick()">Buscar</button></div>
             <div><button onclick="onClearSearchClick()">Limpar busca</button></div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="checkAnimation">Animação</label>
+                <input type="checkbox" id="checkAnimation" checked>
+            </div>
         </div>
         <div class="tree">
             <canvas id="myCanvas"></canvas>
@@ -39,6 +44,9 @@
 
         const buscaTextField = document.getElementById("buscaValor");
         buscaTextField.addEventListener('keydown', keyDownSearch);
+
+        const animacaoCheckField = document.getElementById("checkAnimation");
+        animacaoCheckField.addEventListener('change', changeCheckAnimation);
     </script>
 </body>
 </html>
