@@ -12,6 +12,8 @@ criarArvore = () => {
 /*
   Implementação simples que não reflete a implementação real do algoritmo.
   Se apoia no Garbage Collector do Javascript no navegador.
+  Para destruir a árvore, utilize o percurso pós-ordem (destrua a árvore
+  da esquerda, depois a da direita e finalmente a raiz).
 */
 destruirArvore = (arvore) => {
   arvore.raiz = null;
@@ -21,6 +23,7 @@ function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// árvore global que será usada para o desenho
 arv = criarArvore();
   
 inserirSubArvore = async (noRaiz, valor) => {
@@ -68,14 +71,18 @@ maxFolhas = (altura) => {
     return Math.pow(2, altura);
 }
   
-desenhaNo = (noRaiz, altura, startX, endX, ctx, encontrado) => {
+desenhaNo = (noRaiz, altura, startX, endX, ctx, encontrado, elemento_remover) => {
     const x = startX + (endX - startX) / 2 - 60;
     const y = altura * 100;
 
     if (encontrado == noRaiz.valor) {
       ctx.fillStyle = "yellow";
     } else {
-      ctx.fillStyle = "red";
+      if (elemento_remover == noRaiz.valor) {
+        ctx.fillStyle = "orange";
+      } else {
+        ctx.fillStyle = "red";
+      }
     }
 
     ctx.fillRect(x, y, 60, 60);
@@ -85,7 +92,7 @@ desenhaNo = (noRaiz, altura, startX, endX, ctx, encontrado) => {
     ctx.fillText(noRaiz.valor.toString(), x+14, y+42);
 }
 
-desenhaSubArvore = (noRaiz, altura, startX, endX, ctx, encontrado) => {
+desenhaSubArvore = (noRaiz, altura, startX, endX, ctx, encontrado, elemento_remover) => {
     if (noRaiz == null) {
       return;
     }
@@ -121,22 +128,25 @@ desenhaSubArvore = (noRaiz, altura, startX, endX, ctx, encontrado) => {
         // console.log(`      --- ${startX} x ${endX} ===> ${xLinha} /// ${xLinhaFilhoDir} `);
     }
     
-    desenhaSubArvore(noRaiz.esq, altura + 1, startX, meio, ctx, encontrado);
-    desenhaSubArvore(noRaiz.dir, altura + 1, meio, endX, ctx, encontrado);
+    desenhaSubArvore(noRaiz.esq, altura + 1, startX, meio, ctx, encontrado, elemento_remover);
+    desenhaSubArvore(noRaiz.dir, altura + 1, meio, endX, ctx, encontrado, elemento_remover);
 
-    desenhaNo(noRaiz, altura, startX, endX, ctx, encontrado);
+    desenhaNo(noRaiz, altura, startX, endX, ctx, encontrado, elemento_remover);
 }
 
-desenhaArvore = (arvore, encontrado) => {
+desenhaArvore = (arvore, encontrado, elemento_remover) => {
+    const treeDiv = document.getElementById("tree-container");
     const c = document.getElementById("myCanvas");
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
+    // c.width = window.innerWidth;
+    // c.height = window.innerHeight;
+    c.width = treeDiv.offsetWidth
+    c.height = treeDiv.offsetHeight;
   
     const ctx = c.getContext("2d");
 
     ctx.clearRect(0, 0, c.width, c.height);
 
-    desenhaSubArvore(arvore.raiz, 0, 0, c.width, ctx, encontrado);
+    desenhaSubArvore(arvore.raiz, 0, 0, c.width, ctx, encontrado, elemento_remover);
 }
 
 preOrdemSubArvore = async (noRaiz) => {
@@ -245,6 +255,81 @@ buscaArvore = async (arvore, valor) => {
   return await buscaSubArvore(arvore.raiz, valor);
 }
 
+maxSubArvore = (noRaiz) => {
+  if (noRaiz == null) {
+    return noRaiz;
+  }
+
+  // se o nó não tiver um filho direito, significa que eu encontrei o nó mais à direita
+  if (noRaiz.dir == null) {
+    return noRaiz;
+  }
+
+  return maxSubArvore(noRaiz.dir);
+}
+
+removerSubArvore = async (noRaiz, valor) => {
+  if (noRaiz == null) {
+    desenhaArvore(arv);
+    return noRaiz;
+  }
+
+  if (animation) {
+    desenhaArvore(arv, noRaiz.valor);
+    await timeout(timeValue);
+  }
+
+  // se valor é menor que o valor da raiz, continua a busca na SAE
+  if (valor < noRaiz.valor) {
+    noRaiz.esq = await removerSubArvore(noRaiz.esq, valor);
+
+  // se valor for maior que o valor da raiz, continua a busca na SAD
+  } else if (valor > noRaiz.valor) {
+    noRaiz.dir = await removerSubArvore(noRaiz.dir, valor);
+
+  // se valor for igual ao elemento raiz, eu encontrei o nó e preciso removê-lo
+  } else {
+    /*
+     * Os próximos dois casos, contemplam sub-árvores que
+     * só tenham um dos dois filhos.
+     */
+    // se eu não tiver um filho esquerdo...
+    if (noRaiz.esq == null) {
+      const filhoDir = noRaiz.dir;
+
+      // ... retorna o meu filho direito como a nova raiz da árvore
+      return filhoDir;
+    
+    // caso eu tenha um filho esquerdo, mas não tenha um filho direito...
+    } else if (noRaiz.dir == null) {
+      const filhoEsq = noRaiz.esq;
+
+      // ... retorna o meu filho esquerdo como a nova raiz da árvore
+      return filhoEsq;
+
+    // o nó raiz tem os dois filhos (esquerdo e direito)
+    } else {
+      // encontra o maior valor da SAE
+      const maxSAE = maxSubArvore(noRaiz.esq);
+
+      if (animation) {
+        desenhaArvore(arv, noRaiz.valor, maxSAE.valor);
+        await timeout(timeValue);
+      }
+
+      noRaiz.valor = maxSAE.valor;
+
+      noRaiz.esq = await removerSubArvore(noRaiz.esq, maxSAE.valor);
+    }
+  }
+
+  return noRaiz;
+}
+
+removerArvore = async (arvore, valor) => {
+  arvore.raiz = await removerSubArvore(arvore.raiz, valor);
+}
+
 arvoreTeste = async () => {
     await inserirArvore(arv, 55);
     await inserirArvore(arv, 12);
@@ -260,6 +345,7 @@ arvoreTeste = async () => {
     desenhaArvore(arv);
 }
 
+// constrói a árvore inicial
 arvoreTeste();
 
 async function onInsertClick () {
@@ -331,6 +417,19 @@ async function onSearchClick() {
 
 function onClearSearchClick() {
   desenhaArvore(arv);
+}
+
+async function onDeleteClick() {
+  try {
+    const value = document.getElementById("buscaValor").value;
+    const result = parseInt(value);
+    
+    await removerArvore(arv, result);
+    desenhaArvore(arv);
+  } catch (e) {
+    console.log(e);
+    alert('Informe um valor inteiro!');
+  }
 }
 
 function changeCheckAnimation(event) {

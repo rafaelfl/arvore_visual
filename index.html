@@ -11,29 +11,36 @@
     <div class="container">
         <div class="tools">
             <div>
-                <label for="valor">Valor inteiro a inserir:</label>
-                <input type="text" id="valor">
+                <label for="valor">Inteiro a inserir:</label>
+                <input type="text" id="valor" size="10">
             </div>
-            <div><button onclick="onInsertClick()">Inserir</button></div>
-            <div><button onclick="onClearClick()">Limpar árvore</button></div>
+            <div class="item-group">
+                <div><button onclick="onInsertClick()">Inserir</button></div>
+                <div><button onclick="onClearClick()">Limpar árvore</button></div>
+            </div>
             <div class="vertical-line"></div>
-            <div><button onclick="onPreorderClick()" style="background-color: red">Pré-ordem</button></div>
-            <div><button onclick="onInorderClick()" style="background-color: green">Em ordem</button></div>
-            <div><button onclick="onPostorderClick()" style="background-color: blue">Pós-ordem</button></div>
+            <div class="item-group">
+                <div><button onclick="onPreorderClick()" style="background-color: orange">Pré-ordem</button></div>
+                <div><button onclick="onInorderClick()" style="background-color: green">Em ordem</button></div>
+                <div><button onclick="onPostorderClick()" style="background-color: blue">Pós-ordem</button></div>
+            </div>
             <div class="vertical-line"></div>
             <div>
                 <label for="buscaValor">Busca:</label>
-                <input type="text" id="buscaValor">
+                <input type="text" id="buscaValor" size="10">
             </div>
-            <div><button onclick="onSearchClick()">Buscar</button></div>
-            <div><button onclick="onClearSearchClick()">Limpar busca</button></div>
+            <div class="item-group">
+                <div><button onclick="onSearchClick()">Buscar</button></div>
+                <div><button onclick="onClearSearchClick()">Limpar busca</button></div>
+                <div><button onclick="onDeleteClick()" style="background-color: red">Excluir</button></div>
+            </div>
             <div class="vertical-line"></div>
             <div>
                 <label for="checkAnimation">Animação</label>
                 <input type="checkbox" id="checkAnimation" checked>
             </div>
         </div>
-        <div class="tree">
+        <div class="tree" id="tree-container">
             <canvas id="myCanvas"></canvas>
         </div>
     </div>
